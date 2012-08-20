@@ -1,0 +1,30 @@
+#!/bin/sh
+
+transmit() {
+	pkill --signal "$1" -P "$pid_ant" || kill -s "$1" "$pid_ant"
+}
+
+tmp="$(mktemp "/tmp/ant-color.XXXXXX")"
+rm "$tmp"
+mkfifo "$tmp"
+
+ant "$@" >"$tmp" 2>&1 &
+pid_ant="$!"
+
+ant-colorfilter <"$tmp" &
+pid_filter="$!"
+
+saved_trap="$(trap)"
+trap "transmit HUP" HUP
+trap "transmit HUP" INT
+trap "transmit HUP" QUIT
+
+wait "$pid_filter"
+wait "$pid_ant"
+rtn="$?" # return status from ant
+
+rm "$tmp"
+
+eval "$saved_trap"
+
+exit "$rtn"

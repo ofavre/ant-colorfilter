@@ -1,0 +1,28 @@
+h1. ant-colorfilter
+
+An @awk@ colorizing filter for use with @ant@.
+
+h2. How does it work?
+
+It is a mere @awk@ script, that understands the general structure of @ant@ 's output and recognizes several elements, colorizes each part with escape codes, and outputs the result in the console.
+
+Along with a shell script aimed at being used as an alias instead of @ant@.
+
+h2. Installation
+
+Just drop the files in @/usr/bin/@ or @/usr/local/bin/@, or adapt your @PATH@ environment variable to point to the folder where the scripts resides.
+
+You can optionally make an alias to use @ant-color@ instead of raw @ant@. To do so append the following line in your @~/.bashrc@:
+
+bc. alias ant="ant-color"
+
+h2. Usage
+
+Use @ant-color@ as a drop-in replacement for @ant@, see the alias presented in the installation section.
+
+Or use with manually appending the color filter after each @ant@ invocation:
+
+bc. ant {arguments} | ant-colorfilter
+
+p. The shell script is aimed at solving some problems that can arise when you press Ctrl+C with a forked @java@ task.
+Please try and report any such problems, and tell me if they are solved with the @ant-color@ script.

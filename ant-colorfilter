@@ -8,6 +8,7 @@
 #	5	blink
 # 	6	normal
 #	7	inverted
+#	22	bold off
 # color 30	black	bright: grey
 #	31	red
 #	32	green
@@ -15,12 +16,12 @@
 #	34	blue
 #	35	magenta
 #	36	cyan
-#	37	white
+#	37	gray	bright: white
 #	39	default
 # backg	40+x	Background color, as above
 function colorize_inner(text)
 {
-	return colorize_good(colorize_warnings(colorize_errors(colorize_files(text))));
+	return colorize_good(colorize_warnings(colorize_errors(colorize_files(colorize_javaerrors(text)))));
 }
 function colorize_files(text,     parts)
 {
@@ -31,6 +32,28 @@ function colorize_files(text,     parts)
 		return colorize_inner(parts[1]) "\x1B[35m" parts[2] "\x1B[36m" ":" "\x1B[32m" parts[3] "\x1B[36m" ":" "\x1B[0m" colorize_inner(parts[4]);
 	} else {
 		IGNORECASE = old_ic
+		return text;
+	}
+}
+function colorize_javaerrors(text,     parts)
+{
+	if (text == "Caused by: ") {
+		return "\x1B[35;1m" text "\x1B[0m";
+	} else if (0 != match(text, /(.*)Exception in thread "([^"]+)"(\s.*)/, parts)) {
+		return colorize_inner(parts[1]) "\x1B[35;1m" "Exception in thread \"" "\x1B[36;22m" parts[2] "\x1B[35;1m" "\"" "\x1B[0m" colorize_javaerrors(parts[3])
+	#                                 at     com.package.             Classname           $Innerclass                   .function                 ( file   :line    )
+	#                            11112222223455555555555555555555555546666666666666666666677777777777777777777777777768888888888888888888888888649990000000911111111999999999999992222
+	} else if (0 != match(text, /(.*)(at\s)((([a-z_][a-z0-9_]*\.){1,})([A-Z_][A-Za-z0-9_]*(\$[0-9A-Z_][A-Za-z0-9_]*)?)(\.[<a-z_][<>a-zA-Z0-9_]*))(\(([^:]+):([0-9]+)\)|\([^\)]*\))(.*)/, parts)) {
+		fileref = parts[9]
+		if (parts[10] != "") {
+			fileref = "(" "\x1B[35m" parts[10] "\x1B[36m" ":" "\x1B[32m" parts[11] "\x1B[36;6m" ")"
+		}
+		return colorize_inner(parts[1]) "\x1B[35;1m" "at " "\x1B[34;1m" parts[4] "\x1B[31;1m" parts[6] "\x1B[36;1m" parts[8] "\x1B[36;22m" fileref colorize_inner(parts[12])
+	#                                  com.package.              Classname           $Innerclass                Exception                   : Optional msg
+	#                            1111112333333333333333333332222244444444444444444444555555555555555555555555555666666666666666666666666666666666664447777
+	} else if (0 != match(text, /(.*\s)(([a-z_][a-z0-9_]*\.){1,})([A-Z_][A-Za-z0-9_]*(\$[0-9A-Z_][A-Za-z0-9_]*)?(Exception|Error|Throwable|Failure)\y)(.*)/, parts)) {
+		return colorize_inner(parts[1]) "\x1B[31;1m" parts[2] "\x1B[31m" parts[4] "\x1B[37;1m" colorize_inner(parts[7])
+	} else {
 		return text;
 	}
 }

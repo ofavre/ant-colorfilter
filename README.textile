@@ -10,12 +10,16 @@ Along with a shell script aimed at being used as an alias instead of @ant@.
 
 h2. Installation
 
-Just drop the files in @/usr/bin/@ or @/usr/local/bin/@, or adapt your @PATH@ environment variable to point to the folder where the scripts resides.
+To install the files, use the following command:
 
-You can optionally make an alias to use @ant-color@ instead of raw @ant@, and even reuse the default bash auto-completion for @ant-color@. To do so append the following line in your @~/.bashrc@:
+bc. sudo make install
+
+p. This will install into @/usr/local/bin/@, but you can change it by adding @PREFIX=/usr/bin@ as an argument.
+The Bash completion hook will get installed into @/etc/bash_completion.d/@, you can change it by adding @COMPLETION_FOLDER=/your/path@ as an argument.
+
+You can optionally make an alias to use @ant-color@ instead of raw @ant@. To do so append the following line in your @~/.bashrc@:
 
 bc. alias ant="ant-color"
-complete -F _ant ant-color  # use the default Bash auto-completion of ant for ant-color
 
 h2. Usage
 
@@ -29,3 +33,13 @@ bc. ant {arguments} | ant-colorfilter
 
 p. The shell script is aimed at solving some problems that can arise when you press Ctrl+C with a forked @java@ task.
 Please try and report any such problems, and tell me if they are solved with the @ant-color@ script.
+
+h2. Uninstallation
+
+Simply type:
+
+bc. sudo make uninstall
+
+p. Don't forget to use the same @PREFIX@ and @COMPLETION_FOLDER@ as at installation (normally not mentioned).
+
+*This won't remove the alias* you may have installed yourself. Do it by hand.

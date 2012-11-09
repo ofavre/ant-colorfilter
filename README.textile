@@ -20,6 +20,7 @@ The Bash completion hook will get installed into @/etc/bash_completion.d/@, you 
 You can optionally make an alias to use @ant-color@ instead of raw @ant@. To do so append the following line in your @~/.bashrc@:
 
 bc. alias ant="ant-color"
+alias ant-nocolor="$(which ant)"
 
 h2. Usage
 

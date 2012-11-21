@@ -19,28 +19,28 @@
 #	37	gray	bright: white
 #	39	default
 # backg	40+x	Background color, as above
-function colorize_inner(text)
+function colorize_inner(text, restoreColor)
 {
-	return colorize_good(colorize_warnings(colorize_errors(colorize_files(colorize_javaerrors(text)))));
+	return colorize_good(colorize_warnings(colorize_errors(colorize_files(colorize_javaerrors(text, restoreColor), restoreColor), restoreColor), restoreColor), restoreColor);
 }
-function colorize_files(text,     parts)
+function colorize_files(text, restoreColor,     parts)
 {
 	old_ic = IGNORECASE
 	IGNORECASE = 1
 	if (0 != match(text, /^(.*[[:space:]:])?([^[:space:]:]+):([0-9,+-]+):(\s.*|$)$/, parts) && 0 == match(parts[2], /^[0-9]+$/)) { # file:123: Stuff. With file not only composed of digits (prevent time like 13:37:42,314 from matching)
 		IGNORECASE = old_ic
-		return colorize_inner(parts[1]) "\x1B[35m" parts[2] "\x1B[36m" ":" "\x1B[32m" parts[3] "\x1B[36m" ":" "\x1B[0m" colorize_inner(parts[4]);
+		return colorize_inner(parts[1], restoreColor) "\x1B[35m" parts[2] "\x1B[36m" ":" "\x1B[32m" parts[3] "\x1B[36m" ":" restoreColor colorize_inner(parts[4], restoreColor);
 	} else {
 		IGNORECASE = old_ic
 		return text;
 	}
 }
-function colorize_javaerrors(text,     parts)
+function colorize_javaerrors(text, restoreColor,     parts)
 {
 	if (text == "Caused by: ") {
-		return "\x1B[35;1m" text "\x1B[0m";
+		return "\x1B[35;1m" text restoreColor;
 	} else if (0 != match(text, /(^|.*\s)Exception in thread "([^"]+)"(\s.*|$)/, parts)) {
-		return colorize_inner(parts[1]) "\x1B[35;1m" "Exception in thread \"" "\x1B[36;22m" parts[2] "\x1B[35;1m" "\"" "\x1B[0m" colorize_javaerrors(parts[3])
+		return colorize_inner(parts[1], restoreColor) "\x1B[35;1m" "Exception in thread \"" "\x1B[36;22m" parts[2] "\x1B[35;1m" "\"" restoreColor colorize_javaerrors(parts[3], restoreColor)
 	#                                     at     com.package.             Classname              .function                    ( file   :line    )
 	#                            1111111122222234555555555555555555555555466666666666666666666666777777777777777777777777777738889999999800000000888888888888881111
 	} else if (0 != match(text, /(^|.*\s)(at\s)((([a-z_][a-z0-9_]*\.){1,})([A-Z_][A-Za-z0-9\$_]*)(\.[<a-z_\$][<>a-zA-Z0-9\$_]*))(\(([^:]+):([0-9]+)\)|\([^\)]*\))(.*)/, parts)) {
@@ -48,52 +48,52 @@ function colorize_javaerrors(text,     parts)
 		if (parts[9] != "") {
 			fileref = "(" "\x1B[35m" parts[9] "\x1B[36m" ":" "\x1B[32m" parts[10] "\x1B[36;6m" ")"
 		}
-		return colorize_inner(parts[1]) "\x1B[35;1m" "at " "\x1B[34;1m" parts[4] "\x1B[31;1m" parts[6] "\x1B[36;1m" parts[7] "\x1B[36;22m" fileref colorize_inner(parts[11])
+		return colorize_inner(parts[1], restoreColor) "\x1B[35;1m" "at " "\x1B[34;1m" parts[4] "\x1B[31;1m" parts[6] "\x1B[36;1m" parts[7] "\x1B[36;22m" fileref restoreColor colorize_inner(parts[11], restoreColor)
 	#                                    com.package.              Classname             Exception                             : Optional msg
 	#                            11111111233333333333333333333222224444444444444444444444555555555555555555555555555555555554446666
 	} else if (0 != match(text, /(^|.*\s)(([a-z_][a-z0-9_]*\.){1,})([A-Z_][A-Za-z0-9\$_]*(Exception|Error|Throwable|Failure)\y)(.*)/, parts)) {
-		return colorize_inner(parts[1]) "\x1B[31;1m" parts[2] "\x1B[31m" parts[4] "\x1B[37;1m" colorize_inner(parts[6])
+		return colorize_inner(parts[1], restoreColor) "\x1B[31;1m" parts[2] "\x1B[31m" parts[4] "\x1B[37;1m" colorize_inner(parts[6], "\x1B[37;1m") restoreColor
 	} else {
 		return text;
 	}
 }
-function colorize_errors(text,     parts)
+function colorize_errors(text, restoreColor,     parts)
 {
 	old_ic = IGNORECASE
 	IGNORECASE = 1
 	if (0 != match(text, /(.*)((error|problem|failed|failure|fail|exception)s?)(.*)/, parts)) {
 		IGNORECASE = old_ic
-		return colorize_inner(parts[1]) "\x1B[31;1m" parts[2] "\x1B[0m" colorize_inner(parts[4]);
+		return colorize_inner(parts[1], restoreColor) "\x1B[31;1m" parts[2] restoreColor colorize_inner(parts[4], restoreColor);
 	} else {
 		IGNORECASE = old_ic
 		return text;
 	}
 }
-function colorize_warnings(text,     parts)
+function colorize_warnings(text, restoreColor,     parts)
 {
 	old_ic = IGNORECASE
 	IGNORECASE = 1
 	if (0 != match(text, /(.*)(warnings?|not found|unresolved|missing)(.*)/, parts)) {
 		IGNORECASE = old_ic
-		return colorize_inner(parts[1]) "\x1B[33m" parts[2] "\x1B[0m" colorize_inner(parts[3]);
+		return colorize_inner(parts[1], restoreColor) "\x1B[33m" parts[2] restoreColor colorize_inner(parts[3], restoreColor);
 	} else {
 		IGNORECASE = old_ic
 		return text;
 	}
 }
-function colorize_good(text,     parts)
+function colorize_good(text, restoreColor,     parts)
 {
 	old_ic = IGNORECASE
 	IGNORECASE = 1
 	if (0 != match(text, /(.*)\y(okay|ok|good|successful|success)\y(.*)/, parts)) {
 		IGNORECASE = old_ic
-		return colorize_inner(parts[1]) "\x1B[32m" parts[2] "\x1B[0m" colorize_inner(parts[3]);
+		return colorize_inner(parts[1], restoreColor) "\x1B[32m" parts[2] restoreColor colorize_inner(parts[3], restoreColor);
 	} else {
 		IGNORECASE = old_ic
 		return text;
 	}
 }
-function coloring_log4j(text,     parts)
+function coloring_log4j(text, restoreColor,     parts)
 {
 	old_ic = IGNORECASE
 	IGNORECASE = 1
@@ -115,25 +115,25 @@ function coloring_log4j(text,     parts)
 		} else if (parts[6] == "FATAL") {
 			tagcolor = "\x1B[41;37;1m"
 		}
-		return "\x1B[30;1m" parts[1] "\x1B[0m" parts[3] "\x1B[36m" parts[4] "\x1B[0m" parts[5] tagcolor parts[6] "\x1B[0m" parts[7] "\x1B[34;1m" parts[8] "\x1B[0m" parts[9] colorize_inner(parts[10]);
+		return "\x1B[30;1m" parts[1] restoreColor parts[3] "\x1B[36m" parts[4] restoreColor parts[5] tagcolor parts[6] restoreColor parts[7] "\x1B[34;1m" parts[8] restoreColor parts[9] colorize_inner(parts[10], restoreColor);
 	} else {
 		IGNORECASE = old_ic
-		return colorize_inner(text);
+		return colorize_inner(text, restoreColor);
 	}
 }
 {
 	if (0 != match($0, /^[a-zA-Z_-]+:$/, parts)) { # ^target:$
 		printf "\x1B[37;1m%s", $0;
 	} else if (0 != match($0, /^(\s*)(\[java\])(\s*)(.*)$/, parts)) { # ^     [java] Log4j stuff
-		printf "%s\x1B[36m%s\x1B[0m%s%s", parts[1], parts[2], parts[3], coloring_log4j(parts[4])
+		printf "%s\x1B[36m%s\x1B[0m%s%s", parts[1], parts[2], parts[3], coloring_log4j(parts[4], "\x1B[0m")
 	} else if (0 != match($0, /^(\s*)(\[[^\]]+\])(\s.*)$/, parts)) { # ^   [command]  Stuff$
-		printf "%s\x1B[36m%s\x1B[0m%s", parts[1], parts[2], colorize_inner(parts[3]);
+		printf "%s\x1B[36m%s\x1B[0m%s", parts[1], parts[2], colorize_inner(parts[3], "\x1B[0m");
 	} else if (0 != match($0, /BUILD SUCCESSFUL/, parts)) { # BUILD SUCCESSFUL
 		printf "\x1B[32;1m%s", parts[0];
 	} else if (0 != match($0, /BUILD FAILED/, parts)) { # BUILD FAILED
 		printf "\x1B[31;1m%s", parts[0];
 	} else {
-		printf "%s", colorize_inner($0);
+		printf "%s", colorize_inner($0, "\x1B[0m");
 	}
 	print "\x1B[0m";
 }

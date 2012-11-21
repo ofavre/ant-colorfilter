@@ -43,7 +43,7 @@ function colorize_javaerrors(text,     parts)
 		return colorize_inner(parts[1]) "\x1B[35;1m" "Exception in thread \"" "\x1B[36;22m" parts[2] "\x1B[35;1m" "\"" "\x1B[0m" colorize_javaerrors(parts[3])
 	#                                     at     com.package.             Classname              .function                    ( file   :line    )
 	#                            1111111122222234555555555555555555555555466666666666666666666666777777777777777777777777777738889999999800000000888888888888881111
-	} else if (0 != match(text, /(^|.*\s)(at\s)((([a-z_][a-z0-9_]*\.){1,})([A-Z_][A-Za-z0-9\$_]*)(\.[<a-z_][<>a-zA-Z0-9\$_]*))(\(([^:]+):([0-9]+)\)|\([^\)]*\))(.*)/, parts)) {
+	} else if (0 != match(text, /(^|.*\s)(at\s)((([a-z_][a-z0-9_]*\.){1,})([A-Z_][A-Za-z0-9\$_]*)(\.[<a-z_\$][<>a-zA-Z0-9\$_]*))(\(([^:]+):([0-9]+)\)|\([^\)]*\))(.*)/, parts)) {
 		fileref = parts[8]
 		if (parts[9] != "") {
 			fileref = "(" "\x1B[35m" parts[9] "\x1B[36m" ":" "\x1B[32m" parts[10] "\x1B[36;6m" ")"

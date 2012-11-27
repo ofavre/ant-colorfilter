@@ -124,7 +124,7 @@ function coloring_log4j(text, restoreColor,     parts)
 {
 	if (0 != match($0, /^[a-zA-Z_-]+:$/, parts)) { # ^target:$
 		printf "\x1B[37;1m%s", $0;
-	} else if (0 != match($0, /^(\s*)(\[java\])(\s*)(.*)$/, parts)) { # ^     [java] Log4j stuff
+	} else if (0 != match($0, /^(\s*)(\[[^\]]+\])(\s*)(.*)$/, parts)) { # ^     [java,testng,etc.] Log4j stuff
 		printf "%s\x1B[36m%s\x1B[0m%s%s", parts[1], parts[2], parts[3], coloring_log4j(parts[4], "\x1B[0m")
 	} else if (0 != match($0, /^(\s*)(\[[^\]]+\])(\s.*)$/, parts)) { # ^   [command]  Stuff$
 		printf "%s\x1B[36m%s\x1B[0m%s", parts[1], parts[2], colorize_inner(parts[3], "\x1B[0m");

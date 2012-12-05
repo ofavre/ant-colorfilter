@@ -61,7 +61,7 @@ function colorize_errors(text, restoreColor,     parts)
 {
 	old_ic = IGNORECASE
 	IGNORECASE = 1
-	if (0 != match(text, /(.*)((error|problem|failed|failure|fail|exception)s?)(.*)/, parts)) {
+	if (0 != match(text, /(.*)\y((error|problem|failed|failure|fail|exception)s?)\y(.*)/, parts)) {
 		IGNORECASE = old_ic
 		return colorize_inner(parts[1], restoreColor) "\x1B[31;1m" parts[2] restoreColor colorize_inner(parts[4], restoreColor);
 	} else {
